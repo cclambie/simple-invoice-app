@@ -6,6 +6,8 @@ object Routes {
     const val REPORTS = "reports"
     const val BUSINESS_SETTINGS = "business"
 
+    const val BACKUP = "backup"
+
     const val INVOICE_EDIT = "invoice_edit/{invoiceId}"
     const val INVOICE_DETAIL = "invoice_detail/{invoiceId}"
     const val CLIENT_EDIT = "client_edit/{clientId}"

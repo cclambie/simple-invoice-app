@@ -25,6 +25,8 @@ data class Invoice(
     val issueDate: LocalDate,
     val dueDate: LocalDate,
     val taxRatePercent: Double = 0.0,
+    /** ISO 4217 code all amounts on this invoice are in. */
+    val currencyCode: String,
     val notes: String = "",
     val isPaid: Boolean = false,
     val paidDate: LocalDate? = null

@@ -99,7 +99,7 @@ private fun InvoiceRow(item: InvoiceWithDetails, onClick: () -> Unit) {
             Text(item.client?.name ?: "No client", style = MaterialTheme.typography.bodyLarge)
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Due ${item.invoice.dueDate.asDisplayDate()}")
-                Text(item.total.asCurrency(), style = MaterialTheme.typography.titleLarge)
+                Text(item.total.asCurrency(item.currencyCode), style = MaterialTheme.typography.titleLarge)
             }
         }
     }

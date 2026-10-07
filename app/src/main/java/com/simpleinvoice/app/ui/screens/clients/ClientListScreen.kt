@@ -107,6 +107,7 @@ private fun ClientRow(client: Client, onClick: () -> Unit, onDelete: () -> Unit)
             headlineContent = { Text(client.name) },
             supportingContent = {
                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    if (client.contactName.isNotBlank()) Text(client.contactName)
                     if (client.email.isNotBlank()) Text(client.email)
                     if (client.phone.isNotBlank()) Text(client.phone)
                 }

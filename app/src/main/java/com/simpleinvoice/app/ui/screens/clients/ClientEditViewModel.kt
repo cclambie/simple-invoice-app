@@ -15,10 +15,12 @@ import kotlinx.coroutines.launch
 data class ClientEditUiState(
     val id: Long = 0,
     val name: String = "",
+    val contactName: String = "",
     val email: String = "",
     val phone: String = "",
     val address: String = "",
     val notes: String = "",
+    val currencyCode: String? = null,
     val importedFromContactId: String? = null,
     val isLoading: Boolean = false,
     val isNew: Boolean = true
@@ -41,10 +43,12 @@ class ClientEditViewModel(
                     _uiState.value = ClientEditUiState(
                         id = client.id,
                         name = client.name,
+                        contactName = client.contactName,
                         email = client.email,
                         phone = client.phone,
                         address = client.address,
                         notes = client.notes,
+                        currencyCode = client.currencyCode,
                         importedFromContactId = client.importedFromContactId,
                         isLoading = false,
                         isNew = false
@@ -55,15 +59,21 @@ class ClientEditViewModel(
     }
 
     fun updateName(value: String) { _uiState.value = _uiState.value.copy(name = value) }
+    fun updateContactName(value: String) { _uiState.value = _uiState.value.copy(contactName = value) }
     fun updateEmail(value: String) { _uiState.value = _uiState.value.copy(email = value) }
     fun updatePhone(value: String) { _uiState.value = _uiState.value.copy(phone = value) }
     fun updateAddress(value: String) { _uiState.value = _uiState.value.copy(address = value) }
     fun updateNotes(value: String) { _uiState.value = _uiState.value.copy(notes = value) }
+    fun updateCurrency(value: String?) { _uiState.value = _uiState.value.copy(currencyCode = value) }
 
-    /** Prefills the form from a picked device contact. */
+    /**
+     * Prefills the form from a picked device contact. The contact is a person, so they become
+     * the contact name, and also the client name if none has been entered yet.
+     */
     fun applyContact(name: String, email: String, phone: String, contactId: String) {
         _uiState.value = _uiState.value.copy(
-            name = name,
+            name = _uiState.value.name.ifBlank { name },
+            contactName = name,
             email = email.ifBlank { _uiState.value.email },
             phone = phone.ifBlank { _uiState.value.phone },
             importedFromContactId = contactId
@@ -78,10 +88,12 @@ class ClientEditViewModel(
                 Client(
                     id = state.id,
                     name = state.name.trim(),
+                    contactName = state.contactName.trim(),
                     email = state.email.trim(),
                     phone = state.phone.trim(),
                     address = state.address.trim(),
                     notes = state.notes.trim(),
+                    currencyCode = state.currencyCode,
                     importedFromContactId = state.importedFromContactId
                 )
             )

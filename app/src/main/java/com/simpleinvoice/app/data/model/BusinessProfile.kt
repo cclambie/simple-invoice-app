@@ -2,6 +2,7 @@ package com.simpleinvoice.app.data.model
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.simpleinvoice.app.util.deviceCurrencyCode
 
 /**
  * Single-row table holding the user's business details.
@@ -17,7 +18,15 @@ data class BusinessProfile(
     val taxIdType: TaxIdType = TaxIdType.GST,
     val taxIdCustomLabel: String = "",
     val taxIdNumber: String = "",
-    val defaultTaxRatePercent: Double = 0.0
+    val defaultTaxRatePercent: Double = 0.0,
+    /** Payment terms: new invoices are due this many days after the issue date. */
+    val defaultDueDays: Int = 7,
+    /** ISO 4217 code used for new invoices unless the client has its own currency. */
+    val currencyCode: String = deviceCurrencyCode(),
+    /** Optional international option printed with the payment details, e.g. "Wise". */
+    val internationalPaymentService: String = "",
+    /** Link or account for [internationalPaymentService], e.g. "paypal.me/yourname". */
+    val internationalPaymentLink: String = ""
 ) {
     /** Label to show next to the tax number, e.g. "GST", "VAT", or a custom label. */
     val effectiveTaxIdLabel: String

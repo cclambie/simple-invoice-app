@@ -18,6 +18,10 @@ interface InvoiceDao {
     fun observeAllWithDetails(): Flow<List<InvoiceWithDetails>>
 
     @Transaction
+    @Query("SELECT * FROM invoices ORDER BY issueDate DESC, id DESC")
+    suspend fun getAllWithDetails(): List<InvoiceWithDetails>
+
+    @Transaction
     @Query("SELECT * FROM invoices WHERE id = :id")
     fun observeWithDetails(id: Long): Flow<InvoiceWithDetails?>
 
@@ -46,4 +50,7 @@ interface InvoiceDao {
 
     @Query("SELECT COUNT(*) FROM invoices")
     suspend fun count(): Int
+
+    @Query("SELECT invoiceNumber FROM invoices ORDER BY id DESC LIMIT 1")
+    suspend fun latestInvoiceNumber(): String?
 }

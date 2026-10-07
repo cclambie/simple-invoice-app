@@ -14,15 +14,29 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
+data class CurrencyTotals(
+    val currencyCode: String,
+    val invoiced: Double,
+    val paid: Double,
+    val outstanding: Double
+)
+
 data class ReportSummary(
     val startDate: LocalDate,
     val endDate: LocalDate,
     val invoices: List<InvoiceWithDetails> = emptyList()
 ) {
     val invoiceCount: Int get() = invoices.size
-    val totalInvoiced: Double get() = invoices.sumOf { it.total }
-    val totalPaid: Double get() = invoices.filter { it.invoice.isPaid }.sumOf { it.total }
-    val totalOutstanding: Double get() = invoices.filterNot { it.invoice.isPaid }.sumOf { it.total }
+    /** Totals per currency, since amounts in different currencies can't be added together. */
+    val totalsByCurrency: List<CurrencyTotals>
+        get() = invoices.groupBy { it.currencyCode }.toSortedMap().map { (code, group) ->
+            CurrencyTotals(
+                currencyCode = code,
+                invoiced = group.sumOf { it.total },
+                paid = group.filter { it.invoice.isPaid }.sumOf { it.total },
+                outstanding = group.filterNot { it.invoice.isPaid }.sumOf { it.total }
+            )
+        }
     val paidCount: Int get() = invoices.count { it.invoice.isPaid }
     val unpaidCount: Int get() = invoiceCount - paidCount
 }

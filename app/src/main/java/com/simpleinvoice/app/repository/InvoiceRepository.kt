@@ -19,14 +19,24 @@ class InvoiceRepository(
 
     fun observeWithDetails(id: Long): Flow<InvoiceWithDetails?> = invoiceDao.observeWithDetails(id)
 
+    suspend fun getAllWithDetails(): List<InvoiceWithDetails> = invoiceDao.getAllWithDetails()
+
     suspend fun getWithDetails(id: Long): InvoiceWithDetails? = invoiceDao.getWithDetails(id)
 
     suspend fun getInRange(start: LocalDate, end: LocalDate): List<InvoiceWithDetails> =
         invoiceDao.getWithDetailsInRange(start.toEpochDay(), end.toEpochDay())
 
+    /**
+     * Increments the trailing number of the most recently created invoice, keeping its prefix
+     * and zero padding (e.g. "008" -> "009", "INV-0041" -> "INV-0042").
+     */
     suspend fun nextInvoiceNumber(): String {
-        val count = invoiceDao.count()
-        return "INV-%04d".format(count + 1)
+        val latest = invoiceDao.latestInvoiceNumber()
+            ?: return "INV-%04d".format(invoiceDao.count() + 1)
+        val match = TRAILING_NUMBER.find(latest) ?: return "$latest-1"
+        val digits = match.value
+        val next = (digits.toBigInteger() + java.math.BigInteger.ONE).toString().padStart(digits.length, '0')
+        return latest.substring(0, match.range.first) + next + latest.substring(match.range.last + 1)
     }
 
     /** Saves an invoice and replaces its line items in a single transaction. */
@@ -52,4 +62,9 @@ class InvoiceRepository(
     suspend fun delete(invoice: Invoice) = invoiceDao.delete(invoice)
 
     suspend fun hasInvoicesForClient(clientId: Long): Boolean = invoiceDao.countForClient(clientId) > 0
+
+    private companion object {
+        /** The last run of digits in an invoice number, e.g. "0041" in "INV-0041-A". */
+        val TRAILING_NUMBER = Regex("""\d+(?=\D*$)""")
+    }
 }

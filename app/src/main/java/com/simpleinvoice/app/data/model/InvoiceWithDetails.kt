@@ -13,6 +13,9 @@ data class InvoiceWithDetails(
     @Relation(parentColumn = "id", entityColumn = "invoiceId")
     val lineItems: List<InvoiceLineItem>
 ) {
+    val currencyCode: String
+        get() = invoice.currencyCode
+
     val subtotal: Double
         get() = lineItems.sumOf { it.lineTotal }
 

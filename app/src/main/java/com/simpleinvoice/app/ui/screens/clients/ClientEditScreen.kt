@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
@@ -27,10 +28,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.simpleinvoice.app.ui.components.CurrencyPicker
 import com.simpleinvoice.app.util.readContactBasics
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -97,21 +101,42 @@ fun ClientEditScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = viewModel::updateName,
-                label = { Text("Name *") },
+                label = { Text("Client name *") },
                 modifier = Modifier.fillMaxWidth(),
-                isError = state.name.isBlank()
+                isError = state.name.isBlank(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
+            )
+            OutlinedTextField(
+                value = state.contactName,
+                onValueChange = viewModel::updateContactName,
+                label = { Text("Contact name (optional)") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Words)
             )
             OutlinedTextField(
                 value = state.email,
                 onValueChange = viewModel::updateEmail,
                 label = { Text("Email") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
             )
             OutlinedTextField(
                 value = state.phone,
                 onValueChange = viewModel::updatePhone,
                 label = { Text("Phone") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
+            )
+            CurrencyPicker(
+                label = "Billing currency",
+                selected = state.currencyCode,
+                onSelect = viewModel::updateCurrency,
+                modifier = Modifier.fillMaxWidth(),
+                noneLabel = "Use business default"
             )
             OutlinedTextField(
                 value = state.address,

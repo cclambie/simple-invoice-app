@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
+import com.simpleinvoice.app.data.model.PaymentAccount
 import com.simpleinvoice.app.data.model.TaxIdType
 import com.simpleinvoice.app.repository.BusinessProfileRepository
 import com.simpleinvoice.app.util.simpleInvoiceApp
@@ -21,9 +22,24 @@ data class BusinessSettingsUiState(
     val taxIdCustomLabel: String = "",
     val taxIdNumber: String = "",
     val defaultTaxRatePercent: String = "0",
+    val defaultDueDays: String = "7",
+    val currencyCode: String = com.simpleinvoice.app.util.deviceCurrencyCode(),
+    /** Bank details keyed by currency code. */
+    val paymentAccounts: Map<String, PaymentAccount> = emptyMap(),
+    /** The currency whose bank details are being edited. */
+    val paymentCurrency: String = currencyCode,
+    val internationalPaymentService: String = "",
+    val internationalPaymentLink: String = "",
     val isLoading: Boolean = true,
     val justSaved: Boolean = false
-)
+) {
+    val currentPaymentAccount: PaymentAccount
+        get() = paymentAccounts[paymentCurrency] ?: PaymentAccount(currencyCode = paymentCurrency)
+
+    /** Currencies that have bank details entered, for the summary line. */
+    val currenciesWithPaymentDetails: List<String>
+        get() = paymentAccounts.values.filterNot { it.isBlank }.map { it.currencyCode }.sorted()
+}
 
 class BusinessSettingsViewModel(
     private val repository: BusinessProfileRepository
@@ -35,6 +51,7 @@ class BusinessSettingsViewModel(
     init {
         viewModelScope.launch {
             val profile = repository.get()
+            val accounts = repository.getPaymentAccounts().associateBy { it.currencyCode }
             _uiState.value = BusinessSettingsUiState(
                 businessName = profile.businessName,
                 address = profile.address,
@@ -44,6 +61,12 @@ class BusinessSettingsViewModel(
                 taxIdCustomLabel = profile.taxIdCustomLabel,
                 taxIdNumber = profile.taxIdNumber,
                 defaultTaxRatePercent = formatRate(profile.defaultTaxRatePercent),
+                defaultDueDays = profile.defaultDueDays.toString(),
+                currencyCode = profile.currencyCode,
+                paymentAccounts = accounts,
+                paymentCurrency = profile.currencyCode,
+                internationalPaymentService = profile.internationalPaymentService,
+                internationalPaymentLink = profile.internationalPaymentLink,
                 isLoading = false
             )
         }
@@ -61,6 +84,27 @@ class BusinessSettingsViewModel(
     fun updateTaxIdNumber(value: String) { _uiState.value = _uiState.value.copy(taxIdNumber = value, justSaved = false) }
     fun updateDefaultTaxRate(value: String) { _uiState.value = _uiState.value.copy(defaultTaxRatePercent = value, justSaved = false) }
 
+    fun updateDefaultDueDays(value: String) { _uiState.value = _uiState.value.copy(defaultDueDays = value, justSaved = false) }
+
+    fun updateCurrency(value: String) { _uiState.value = _uiState.value.copy(currencyCode = value, justSaved = false) }
+
+    fun selectPaymentCurrency(value: String) { _uiState.value = _uiState.value.copy(paymentCurrency = value) }
+    fun updateAccountName(value: String) = editPaymentAccount { it.copy(accountName = value) }
+    fun updateBankCode(value: String) = editPaymentAccount { it.copy(bankCode = value) }
+    fun updateAccountNumber(value: String) = editPaymentAccount { it.copy(accountNumber = value) }
+    fun updateInternationalService(value: String) {
+        _uiState.value = _uiState.value.copy(internationalPaymentService = value, justSaved = false)
+    }
+    fun updateInternationalLink(value: String) {
+        _uiState.value = _uiState.value.copy(internationalPaymentLink = value, justSaved = false)
+    }
+
+    private fun editPaymentAccount(transform: (PaymentAccount) -> PaymentAccount) {
+        val state = _uiState.value
+        val updated = transform(state.currentPaymentAccount)
+        _uiState.value = state.copy(paymentAccounts = state.paymentAccounts + (updated.currencyCode to updated), justSaved = false)
+    }
+
     fun save() {
         val state = _uiState.value
         viewModelScope.launch {
@@ -73,8 +117,17 @@ class BusinessSettingsViewModel(
                     taxIdType = state.taxIdType,
                     taxIdCustomLabel = state.taxIdCustomLabel.trim(),
                     taxIdNumber = state.taxIdNumber.trim(),
-                    defaultTaxRatePercent = state.defaultTaxRatePercent.toDoubleOrNull() ?: 0.0
+                    defaultTaxRatePercent = state.defaultTaxRatePercent.toDoubleOrNull() ?: 0.0,
+                    defaultDueDays = state.defaultDueDays.toIntOrNull() ?: 7,
+                    currencyCode = state.currencyCode,
+                    internationalPaymentService = state.internationalPaymentService.trim(),
+                    internationalPaymentLink = state.internationalPaymentLink.trim()
                 )
+            )
+            repository.savePaymentAccounts(
+                state.paymentAccounts.values.map {
+                    it.copy(accountName = it.accountName.trim(), bankCode = it.bankCode.trim(), accountNumber = it.accountNumber.trim())
+                }
             )
             _uiState.value = _uiState.value.copy(justSaved = true)
         }

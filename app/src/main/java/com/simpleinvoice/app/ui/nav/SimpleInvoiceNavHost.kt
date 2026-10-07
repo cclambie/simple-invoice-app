@@ -12,6 +12,7 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -21,6 +22,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import com.simpleinvoice.app.ui.screens.backup.BackupScreen
 import com.simpleinvoice.app.ui.screens.business.BusinessSettingsScreen
 import com.simpleinvoice.app.ui.screens.clients.ClientEditScreen
 import com.simpleinvoice.app.ui.screens.clients.ClientListScreen
@@ -118,7 +120,10 @@ fun SimpleInvoiceNavHost() {
                 ReportsScreen()
             }
             composable(Routes.BUSINESS_SETTINGS) {
-                BusinessSettingsScreen()
+                BusinessSettingsScreen(onOpenBackup = { navController.navigate(Routes.BACKUP) })
+            }
+            composable(Routes.BACKUP) {
+                BackupScreen(onBack = { navController.popBackStack() })
             }
         }
     }
