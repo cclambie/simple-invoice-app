@@ -33,6 +33,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simpleinvoice.app.SimpleInvoiceApp
 import com.simpleinvoice.app.plan.Tier
 import com.simpleinvoice.app.ui.components.DateField
+import com.simpleinvoice.app.ui.nav.AppMenu
 import com.simpleinvoice.app.util.asCurrency
 import com.simpleinvoice.app.util.currencyLabel
 import com.simpleinvoice.app.util.asDisplayDate
@@ -68,7 +69,7 @@ fun ReportsScreen(
     }
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Reports") }) }
+        topBar = { TopAppBar(title = { Text("Reports") }, actions = { AppMenu() }) }
     ) { padding ->
         Column(
             modifier = Modifier

@@ -27,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.simpleinvoice.app.ui.nav.AppMenu
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +49,7 @@ fun InvoiceListScreen(
     val invoices by viewModel.invoices.collectAsStateWithLifecycle()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Invoices") }) },
+        topBar = { TopAppBar(title = { Text("Invoices") }, actions = { AppMenu() }) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddInvoice) {
                 Icon(Icons.Filled.Add, contentDescription = "New invoice")

@@ -25,6 +25,10 @@ fun Double.asCurrency(currencyCode: String): String =
 fun currencyLabel(currencyCode: String): String =
     runCatching { "$currencyCode – ${Currency.getInstance(currencyCode).displayName}" }.getOrDefault(currencyCode)
 
+/** A quantity or percentage without a pointless ".0": 1.0 -> "1", 2.5 -> "2.5". */
+fun Double.asPlainNumber(): String =
+    if (this == Math.floor(this) && !isInfinite()) toLong().toString() else toString()
+
 fun LocalDate.asDisplayDate(): String = format(dateFormatter)
 
 private val decimalInput = Regex("""\d*\.?\d*""")

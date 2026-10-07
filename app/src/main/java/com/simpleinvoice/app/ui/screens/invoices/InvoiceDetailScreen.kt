@@ -43,6 +43,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simpleinvoice.app.SimpleInvoiceApp
 import com.simpleinvoice.app.plan.AdRules
 import com.simpleinvoice.app.util.asCurrency
+import com.simpleinvoice.app.util.asPlainNumber
 import com.simpleinvoice.app.util.findActivity
 import com.simpleinvoice.app.util.asDisplayDate
 import com.simpleinvoice.app.util.pdfFileName
@@ -137,7 +138,7 @@ fun InvoiceDetailScreen(
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                     Column {
                         Text(line.description)
-                        Text("${line.quantity} × ${line.unitPrice.asCurrency(item.currencyCode)}", style = MaterialTheme.typography.labelLarge)
+                        Text("${line.quantity.asPlainNumber()} × ${line.unitPrice.asCurrency(item.currencyCode)}", style = MaterialTheme.typography.labelLarge)
                     }
                     Text(line.lineTotal.asCurrency(item.currencyCode))
                 }
@@ -146,7 +147,7 @@ fun InvoiceDetailScreen(
             Divider()
 
             SummaryRow("Subtotal", item.subtotal.asCurrency(item.currencyCode))
-            SummaryRow("Tax (${item.invoice.taxRatePercent}%)", item.taxAmount.asCurrency(item.currencyCode))
+            SummaryRow("Tax (${item.invoice.taxRatePercent.asPlainNumber()}%)", item.taxAmount.asCurrency(item.currencyCode))
             SummaryRow("Total", item.total.asCurrency(item.currencyCode), emphasize = true)
 
             if (item.invoice.notes.isNotBlank()) {

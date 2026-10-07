@@ -120,6 +120,18 @@ can't be shown, so for free users it should only run as part of a manual backup 
 - **Consent**: add Google's UMP consent form for EU/UK users before requesting ads.
 - **Play Console**: declare ads and the advertising ID in the Data safety form.
 
+## Website
+
+`website/` is the static site at https://apps.craiglambie.com (an apps index plus
+`/invoice-maker-professional/` with the landing page, backup & sync guide and privacy policy).
+It's served by the bunny.net pull zone `appscraiglambie` from the Sydney storage zone of the same
+name. Publish changes with `tools/deploy_website.sh` (reads the bunny.net API key from the
+keyring). Analytics IDs (Umami, Google Ads) go in `website/assets/config.js`; each tracker stays
+off while its value is empty.
+
+Screenshots use fictional data from `tools/make_demo_db.py`; the launcher and Play Store icons
+come from `tools/make_icon.py`. Play Store assets and listing copy are in `store/`.
+
 ## Requirements
 
 - Android Studio (Koala or newer recommended)

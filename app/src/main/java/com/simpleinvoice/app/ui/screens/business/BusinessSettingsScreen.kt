@@ -10,13 +10,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Backup
-import androidx.compose.material.icons.filled.WorkspacePremium
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,6 +32,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.simpleinvoice.app.data.model.PaymentAccount
+import com.simpleinvoice.app.ui.nav.AppMenu
 import com.simpleinvoice.app.data.model.TaxIdType
 import com.simpleinvoice.app.ui.components.CurrencyPicker
 import com.simpleinvoice.app.util.asDecimalInput
@@ -45,8 +40,6 @@ import com.simpleinvoice.app.util.asDecimalInput
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BusinessSettingsScreen(
-    onOpenBackup: () -> Unit,
-    onOpenPlans: () -> Unit,
     viewModel: BusinessSettingsViewModel = viewModel(factory = BusinessSettingsViewModel.Factory)
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -62,14 +55,7 @@ fun BusinessSettingsScreen(
         topBar = {
             TopAppBar(
                 title = { Text("Business Details") },
-                actions = {
-                    IconButton(onClick = onOpenPlans) {
-                        Icon(Icons.Filled.WorkspacePremium, contentDescription = "Plans")
-                    }
-                    IconButton(onClick = onOpenBackup) {
-                        Icon(Icons.Filled.Backup, contentDescription = "Backup & restore")
-                    }
-                }
+                actions = { AppMenu() }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }

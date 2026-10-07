@@ -18,7 +18,7 @@ The home screen shows about 12 characters of the name, so it appears as "Invoice
 
 > Unlimited free invoices. No pop-up ads for your first 3 invoices each month.
 
-Alternative (76): "Free, unlimited invoices & PDF. Remove ads from $1/month. No lock-in, no hassle."
+Alternative (73): "Free, unlimited invoices & PDFs. Remove pop-ups for $1/month. No lock-in."
 
 ## Full description (max 4000 characters)
 

@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.simpleinvoice.app.ui.nav.AppMenu
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -48,7 +49,7 @@ fun ClientListScreen(
     val scope = rememberCoroutineScope()
 
     Scaffold(
-        topBar = { TopAppBar(title = { Text("Clients") }) },
+        topBar = { TopAppBar(title = { Text("Clients") }, actions = { AppMenu() }) },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClient) {
                 Icon(Icons.Filled.Add, contentDescription = "Add client")

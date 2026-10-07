@@ -172,7 +172,7 @@ private class InvoicePdfRenderer(
             var lineY = y + ROW_PAD + text.textSize
             descLines.forEach { canvas.drawText(it, COL_DESC + 6f, lineY, text); lineY += LINE }
             val firstBaseline = y + ROW_PAD + text.textSize
-            drawRight(formatQuantity(item.quantity), COL_QTY, firstBaseline, text)
+            drawRight(item.quantity.asPlainNumber(), COL_QTY, firstBaseline, text)
             drawRight(item.unitPrice.money(), COL_PRICE, firstBaseline, text)
             drawRight(item.lineTotal.money(), RIGHT - 6f, firstBaseline, text)
             y += rowHeight
@@ -200,7 +200,7 @@ private class InvoicePdfRenderer(
         canvas.drawText("Subtotal", labelX, y, text)
         drawRight(details.subtotal.money(), RIGHT - 6f, y, text)
         y += LINE + 2f
-        canvas.drawText("$taxLabel (${formatQuantity(invoice.taxRatePercent)}%)", labelX, y, text)
+        canvas.drawText("$taxLabel (${invoice.taxRatePercent.asPlainNumber()}%)", labelX, y, text)
         drawRight(details.taxAmount.money(), RIGHT - 6f, y, text)
         y += 8f
         canvas.drawLine(labelX, y, RIGHT, y, line)
@@ -302,8 +302,6 @@ private class InvoicePdfRenderer(
             out
         }
 
-    private fun formatQuantity(value: Double): String =
-        if (value == value.toLong().toDouble()) value.toLong().toString() else value.toString()
 
     private companion object {
         // A4 in PostScript points.

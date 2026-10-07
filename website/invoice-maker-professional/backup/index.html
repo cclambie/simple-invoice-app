@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Backup &amp; sync guide · Invoice Maker - Professional</title>
+  <meta name="description" content="How to back up Invoice Maker - Professional to your own Nextcloud, Google Drive, Syncthing or server, and restore on a new phone.">
+  <link rel="canonical" href="https://apps.craiglambie.com/invoice-maker-professional/backup/">
+  <meta name="theme-color" content="#f97316">
+  <link rel="icon" href="/assets/favicon-32.png" sizes="32x32">
+  <link rel="stylesheet" href="/assets/site.css">
+  <script src="/assets/config.js"></script>
+  <script src="/assets/site.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="/invoice-maker-professional/">
+        <img src="/invoice-maker-professional/img/icon-192.png" alt="" width="32" height="32">
+        Invoice Maker - Professional
+      </a>
+      <nav aria-label="Main">
+        <a href="/invoice-maker-professional/">App</a>
+        <a href="/invoice-maker-professional/privacy/">Privacy</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap doc">
+    <h1>Backup &amp; sync guide</h1>
+    <p class="meta">Keep your invoices safe on your own services. We never see your backups.</p>
+
+    <h2 id="how">How backups work</h2>
+    <p>Open the app's menu (☰, top right) and choose <strong>Backup &amp; restore</strong>.</p>
+    <ol>
+      <li><strong>Choose folder</strong>: pick where backups go. Android shows your phone's storage and any cloud
+        apps that add themselves to the picker, such as Nextcloud.</li>
+      <li><strong>Back up now</strong> writes <code>SimpleInvoice-backup-YYYY-MM-DD.db</code> (one file per day). The app
+        keeps the newest 7 daily backups by default and deletes older ones.</li>
+      <li><strong>Automatic backup</strong> (Premium Plus) backs up a few seconds after every change.</li>
+      <li><strong>Also save invoice PDFs</strong> keeps a PDF of every invoice in an <code>Invoices</code> folder next to the
+        backups.</li>
+    </ol>
+    <p>To get backups off your phone, choose a folder that one of the tools below keeps in sync.</p>
+
+    <h2 id="nextcloud">Nextcloud</h2>
+    <h3>Option A: pick a Nextcloud folder directly</h3>
+    <ol>
+      <li>Install the Nextcloud Android app and sign in.</li>
+      <li>In Invoice Maker, tap <strong>Choose folder</strong>, open the side menu in the picker and choose
+        <strong>Nextcloud</strong>, then pick or create a folder such as <code>Invoices</code>.</li>
+    </ol>
+    <p>If the picker doesn't let you choose a Nextcloud folder, use option B.</p>
+    <h3>Option B: local folder + auto upload</h3>
+    <ol>
+      <li>In Invoice Maker, choose a phone folder such as <code>Documents/SimpleInvoice</code>.</li>
+      <li>In the Nextcloud app: <strong>Settings → Auto upload</strong>, add a custom folder, select
+        <code>Documents/SimpleInvoice</code> and choose where it uploads to.</li>
+    </ol>
+
+    <h2 id="drive">Google Drive</h2>
+    <p>Google Drive lets apps save single files but not keep writing to a folder, so:</p>
+    <ul>
+      <li><strong>Manual:</strong> with no backup folder set, <strong>Back up now</strong> asks where to save; choose Drive.</li>
+      <li><strong>Automatic:</strong> back up to a phone folder and sync it to Drive with an app like
+        <strong>FolderSync</strong> or <strong>Autosync for Google Drive</strong> (set it to upload one-way from the phone).</li>
+    </ul>
+
+    <h2 id="syncthing">Syncthing (no cloud at all)</h2>
+    <ol>
+      <li>Install a Syncthing app on your phone (for example Syncthing-Fork) and Syncthing on your computer.</li>
+      <li>Share your backup folder (for example <code>Documents/SimpleInvoice</code>) between the two devices.</li>
+      <li>Set the phone side to <em>Send only</em> if you want the computer to be a pure backup.</li>
+    </ol>
+
+    <h2 id="server">Your own server: SFTP or rsync</h2>
+    <ul>
+      <li><strong>FolderSync</strong> can upload a phone folder to SFTP, WebDAV, SMB and more on a schedule.</li>
+      <li><strong>Termux</strong> users can run rsync from shared storage, for example:<br>
+        <code>rsync -av ~/storage/shared/Documents/SimpleInvoice/ user@server:backups/invoices/</code>
+        (run <code>termux-setup-storage</code> once first).</li>
+    </ul>
+
+    <h2 id="restore">Restoring on a new phone</h2>
+    <ol>
+      <li>Install Invoice Maker - Professional.</li>
+      <li>Get your latest <code>SimpleInvoice-backup-….db</code> onto the phone (or make it reachable through your cloud app).</li>
+      <li>Open ☰ → <strong>Backup &amp; restore</strong> → <strong>Restore from backup…</strong> and pick the file.</li>
+    </ol>
+    <p>The app checks the file, keeps a safety copy of what's currently in the app, then restarts with your
+      restored data. Backups from older versions of the app are upgraded automatically.</p>
+
+    <div class="callout">Backup files aren't encrypted by the app. Keep them in a folder or service you trust, ideally
+      one with its own encryption.</div>
+
+    <h2 id="csv">Records for your accountant</h2>
+    <p>Backups are for restoring the app. For a spreadsheet, use <strong>Reports → Export CSV</strong> (Premium), which
+      lists each invoice with dates, client, currency, totals and paid status.</p>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>© 2026 Craig Lambie · <a href="/">More apps</a></span>
+      <span><a href="/invoice-maker-professional/privacy/">Privacy</a> · <a href="mailto:apps@craiglambie.com">apps@craiglambie.com</a></span>
+    </div>
+  </footer>
+</body>
+</html>
