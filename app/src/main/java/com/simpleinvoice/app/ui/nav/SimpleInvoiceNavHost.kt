@@ -1,5 +1,6 @@
 package com.simpleinvoice.app.ui.nav
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Business
@@ -14,6 +15,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hierarchy
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -22,7 +25,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.NavType
+import com.simpleinvoice.app.SimpleInvoiceApp
+import com.simpleinvoice.app.ads.BannerAd
 import com.simpleinvoice.app.ui.screens.backup.BackupScreen
+import com.simpleinvoice.app.ui.screens.plans.PlansScreen
 import com.simpleinvoice.app.ui.screens.business.BusinessSettingsScreen
 import com.simpleinvoice.app.ui.screens.clients.ClientEditScreen
 import com.simpleinvoice.app.ui.screens.clients.ClientListScreen
@@ -41,25 +47,30 @@ private fun destinationIcon(destination: TopLevelDestination) = when (destinatio
 @Composable
 fun SimpleInvoiceNavHost() {
     val navController = rememberNavController()
+    val app = LocalContext.current.applicationContext as SimpleInvoiceApp
+    val tier by app.planRepository.tier.collectAsStateWithLifecycle()
 
     Scaffold(
         bottomBar = {
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentRoute = backStackEntry?.destination
-            NavigationBar {
-                TopLevelDestination.entries.forEach { destination ->
-                    NavigationBarItem(
-                        selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true,
-                        onClick = {
-                            navController.navigate(destination.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = { Icon(destinationIcon(destination), contentDescription = destination.label) },
-                        label = { Text(destination.label) }
-                    )
+            Column {
+                if (tier.showsBanner) BannerAd()
+                NavigationBar {
+                    TopLevelDestination.entries.forEach { destination ->
+                        NavigationBarItem(
+                            selected = currentRoute?.hierarchy?.any { it.route == destination.route } == true,
+                            onClick = {
+                                navController.navigate(destination.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            },
+                            icon = { Icon(destinationIcon(destination), contentDescription = destination.label) },
+                            label = { Text(destination.label) }
+                        )
+                    }
                 }
             }
         }
@@ -117,13 +128,22 @@ fun SimpleInvoiceNavHost() {
                 )
             }
             composable(Routes.REPORTS) {
-                ReportsScreen()
+                ReportsScreen(onOpenPlans = { navController.navigate(Routes.PLANS) })
             }
             composable(Routes.BUSINESS_SETTINGS) {
-                BusinessSettingsScreen(onOpenBackup = { navController.navigate(Routes.BACKUP) })
+                BusinessSettingsScreen(
+                    onOpenBackup = { navController.navigate(Routes.BACKUP) },
+                    onOpenPlans = { navController.navigate(Routes.PLANS) }
+                )
             }
             composable(Routes.BACKUP) {
-                BackupScreen(onBack = { navController.popBackStack() })
+                BackupScreen(
+                    onBack = { navController.popBackStack() },
+                    onOpenPlans = { navController.navigate(Routes.PLANS) }
+                )
+            }
+            composable(Routes.PLANS) {
+                PlansScreen(onBack = { navController.popBackStack() })
             }
         }
     }

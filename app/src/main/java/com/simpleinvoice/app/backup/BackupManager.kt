@@ -58,7 +58,9 @@ class BackupManager(
     private val database: AppDatabase,
     private val invoiceRepository: InvoiceRepository,
     private val businessProfileRepository: BusinessProfileRepository,
-    private val scope: CoroutineScope
+    private val scope: CoroutineScope,
+    /** Automatic backup is a paid feature; checked on every change so a downgrade takes effect. */
+    private val autoBackupAllowed: () -> Boolean
 ) {
     private val prefs = context.getSharedPreferences("backup", Context.MODE_PRIVATE)
     private val _settings = MutableStateFlow(readSettings())
@@ -79,7 +81,7 @@ class BackupManager(
     /** Debounces bursts of edits into a single backup a few seconds after the last change. */
     private fun scheduleAutoBackup() {
         val current = _settings.value
-        if (!current.autoBackup || current.folderUri == null) return
+        if (!current.autoBackup || current.folderUri == null || !autoBackupAllowed()) return
         pendingAutoBackup?.cancel()
         pendingAutoBackup = scope.launch(Dispatchers.IO) {
             delay(AUTO_BACKUP_DELAY_MS)

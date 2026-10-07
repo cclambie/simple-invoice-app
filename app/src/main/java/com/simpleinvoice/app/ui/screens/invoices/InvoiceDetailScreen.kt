@@ -40,7 +40,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.simpleinvoice.app.SimpleInvoiceApp
+import com.simpleinvoice.app.plan.AdRules
 import com.simpleinvoice.app.util.asCurrency
+import com.simpleinvoice.app.util.findActivity
 import com.simpleinvoice.app.util.asDisplayDate
 import com.simpleinvoice.app.util.pdfFileName
 import com.simpleinvoice.app.util.shareInvoicePdf
@@ -64,6 +67,21 @@ fun InvoiceDetailScreen(
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+
+    val app = context.applicationContext as SimpleInvoiceApp
+
+    /** Free users past the monthly allowance see a pop-up ad before sending or saving a PDF. */
+    fun afterExportAd(action: () -> Unit) {
+        scope.launch {
+            val activity = context.findActivity()
+            val plans = app.planRepository
+            if (activity != null && AdRules.popupOnInvoiceExport(plans.tier.value, plans.invoicesThisMonth())) {
+                app.adManager.showInterstitial(activity, action)
+            } else {
+                action()
+            }
+        }
+    }
 
     val savePdfLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.CreateDocument("application/pdf")
@@ -139,14 +157,14 @@ fun InvoiceDetailScreen(
 
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
                 Button(
-                    onClick = { shareInvoicePdf(context, item, business, paymentAccounts[item.currencyCode]) },
+                    onClick = { afterExportAd { shareInvoicePdf(context, item, business, paymentAccounts[item.currencyCode]) } },
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Filled.Share, contentDescription = null)
                     Text(" Send PDF")
                 }
                 OutlinedButton(
-                    onClick = { savePdfLauncher.launch(item.pdfFileName()) },
+                    onClick = { afterExportAd { savePdfLauncher.launch(item.pdfFileName()) } },
                     modifier = Modifier.weight(1f)
                 ) {
                     Icon(Icons.Filled.Download, contentDescription = null)

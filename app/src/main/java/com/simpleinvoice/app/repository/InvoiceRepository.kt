@@ -26,6 +26,12 @@ class InvoiceRepository(
     suspend fun getInRange(start: LocalDate, end: LocalDate): List<InvoiceWithDetails> =
         invoiceDao.getWithDetailsInRange(start.toEpochDay(), end.toEpochDay())
 
+    /** Invoices issued in the current calendar month; drives the free tier's ad level. */
+    suspend fun countIssuedThisMonth(): Int {
+        val month = java.time.YearMonth.now()
+        return invoiceDao.countInRange(month.atDay(1).toEpochDay(), month.atEndOfMonth().toEpochDay())
+    }
+
     /**
      * Increments the trailing number of the most recently created invoice, keeping its prefix
      * and zero padding (e.g. "008" -> "009", "INV-0041" -> "INV-0042").

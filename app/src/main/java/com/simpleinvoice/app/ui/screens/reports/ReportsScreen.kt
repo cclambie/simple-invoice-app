@@ -30,6 +30,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.simpleinvoice.app.SimpleInvoiceApp
+import com.simpleinvoice.app.plan.Tier
 import com.simpleinvoice.app.ui.components.DateField
 import com.simpleinvoice.app.util.asCurrency
 import com.simpleinvoice.app.util.currencyLabel
@@ -42,6 +44,7 @@ import kotlinx.coroutines.withContext
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportsScreen(
+    onOpenPlans: () -> Unit,
     viewModel: ReportsViewModel = viewModel(factory = ReportsViewModel.Factory)
 ) {
     val startDate by viewModel.startDate.collectAsStateWithLifecycle()
@@ -49,6 +52,7 @@ fun ReportsScreen(
     val summary by viewModel.summary.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val tier by (context.applicationContext as SimpleInvoiceApp).planRepository.tier.collectAsStateWithLifecycle()
 
     val exportCsv = rememberLauncherForActivityResult(ActivityResultContracts.CreateDocument("text/csv")) { uri ->
         val report = summary ?: return@rememberLauncherForActivityResult
@@ -96,12 +100,24 @@ fun ReportsScreen(
             } else {
                 SummaryCard(report)
                 OutlinedButton(
-                    onClick = { exportCsv.launch("invoices-${report.startDate}-to-${report.endDate}.csv") },
+                    onClick = {
+                        val withinOneMonth = report.endDate.isBefore(report.startDate.plusMonths(1))
+                        when {
+                            !tier.canExportCsv -> {
+                                Toast.makeText(context, "Upgrade to Premium to export reports", Toast.LENGTH_SHORT).show()
+                                onOpenPlans()
+                            }
+                            !tier.csvExportUnlimited && !withinOneMonth -> Toast.makeText(
+                                context, "Upgrade to get more than 1 month export at a time", Toast.LENGTH_LONG
+                            ).show()
+                            else -> exportCsv.launch("invoices-${report.startDate}-to-${report.endDate}.csv")
+                        }
+                    },
                     enabled = report.invoices.isNotEmpty(),
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(Icons.Filled.FileDownload, contentDescription = null)
-                    Text(" Export CSV")
+                    Text(if (tier == Tier.FREE) " Export CSV (Premium)" else " Export CSV")
                 }
                 Divider()
                 Text("Invoices in period", style = MaterialTheme.typography.titleLarge)

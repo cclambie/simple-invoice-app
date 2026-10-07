@@ -56,10 +56,11 @@ folder that Nextcloud, Syncthing, FolderSync (Google Drive, SFTP…) or Termux +
 sync. Google Drive's folder picker doesn't allow ongoing writes, so automatic backups to Drive
 need a local folder plus a sync app.
 
-## Monetisation plan (not built yet)
+## Monetisation
 
-Everything above is currently unlocked. The plan is ad-supported free use with two paid tiers.
-Tier names below are placeholders.
+Ad-supported free use with two paid tiers. The tiers, ads (Google test ads) and every rule below
+are built; Google Play Billing isn't yet, so the tier is chosen from developer options on the
+Plans screen (Business → Plans) in debug builds. Tier names are placeholders.
 
 ### Free (ad supported)
 
@@ -95,27 +96,36 @@ Ad load depends on how many invoices were created in the current calendar month:
 Note: the automatic "Also save invoice PDFs" option runs in the background, where a pop-up ad
 can't be shown, so for free users it should only run as part of a manual backup (after its ad).
 
-### Implementation notes
+### Implementation
 
-- Subscriptions: Google Play Billing (two subscription products). Cache the active tier
-  locally so the app works offline, refreshing on launch.
-- Ads: AdMob banner + interstitial. Respect consent (UMP SDK) for EU/UK users.
-- Where the gates go:
-  - Footer banner: the `Scaffold` bottom bar in `ui/nav/SimpleInvoiceNavHost.kt`.
-  - App-open pop-up: `MainActivity`.
-  - Send / Save PDF pop-up: `ui/screens/invoices/InvoiceDetailScreen.kt`.
-  - CSV export and its range limit: `ui/screens/reports/ReportsScreen.kt`.
-  - Manual backup/restore, automatic backup toggle and the PDF option:
-    `ui/screens/backup/BackupScreen.kt`. `backup/BackupManager.kt` should also refuse automatic
-    backups when the tier doesn't allow them, so a downgrade takes effect.
-  - Monthly invoice count: count invoices by `issueDate`, or add a created-at column if the
-    count should ignore back-dated invoices.
+- Rules: `plan/Tier.kt` (what each tier unlocks) and `AdRules` (when pop-ups appear). Invoices
+  are counted by `issueDate` within the current calendar month.
+- Current tier: `plan/PlanRepository.kt`. Debug builds can also pretend an invoice count
+  (Plans → developer options) to try each ad level.
+- Ads: `ads/AdManager.kt` keeps one pop-up preloaded and never blocks the user if none is
+  ready; after a pop-up closes, a toast suggests Premium. `ads/BannerAd.kt` is the footer.
+- Gates: footer in `ui/nav/SimpleInvoiceNavHost.kt`; app-open pop-up in `MainActivity`;
+  Send/Save PDF in `InvoiceDetailScreen`; CSV export and its 1-month limit in `ReportsScreen`;
+  backup/restore ads and the automatic-backup lock in `BackupScreen`, with `BackupManager`
+  also refusing automatic backups for lower tiers so a downgrade takes effect.
+
+### Before publishing
+
+- **AdMob IDs**: `app/build.gradle.kts` uses Google's public test IDs. Create the app and ad
+  units in AdMob and put the real IDs in a release-only config.
+- **Billing**: add Google Play Billing with two subscription products, replace the developer
+  switch with the purchased tier (cached locally so the app works offline), and enable the
+  Subscribe buttons on the Plans screen. Billing can only be tested once the app is on a Play
+  Console test track.
+- **Consent**: add Google's UMP consent form for EU/UK users before requesting ads.
+- **Play Console**: declare ads and the advertising ID in the Data safety form.
 
 ## Requirements
 
 - Android Studio (Koala or newer recommended)
 - JDK 17
-- Android SDK with API 34 installed (compileSdk/targetSdk 34, minSdk 26 / Android 8.0+)
+- Android SDK with API 35 installed (compileSdk/targetSdk 35, minSdk 26 / Android 8.0+)
+- Kotlin 2.2 (via the Gradle plugin; nothing to install)
 
 ## Building
 

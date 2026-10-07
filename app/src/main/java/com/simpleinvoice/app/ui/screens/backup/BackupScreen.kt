@@ -44,7 +44,10 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.widget.Toast
 import com.simpleinvoice.app.SimpleInvoiceApp
+import com.simpleinvoice.app.plan.AdRules
+import com.simpleinvoice.app.util.findActivity
 import java.text.DateFormat
 import java.time.LocalDate
 import java.util.Date
@@ -52,10 +55,18 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BackupScreen(onBack: () -> Unit) {
+fun BackupScreen(onBack: () -> Unit, onOpenPlans: () -> Unit) {
     val context = LocalContext.current
-    val manager = remember { (context.applicationContext as SimpleInvoiceApp).backupManager }
+    val app = remember { context.applicationContext as SimpleInvoiceApp }
+    val manager = app.backupManager
     val settings by manager.settings.collectAsStateWithLifecycle()
+    val tier by app.planRepository.tier.collectAsStateWithLifecycle()
+    /** A backup/restore waiting for the free user to accept the ad. */
+    var pendingAdAction by remember { mutableStateOf<(() -> Unit)?>(null) }
+
+    fun afterBackupAd(action: () -> Unit) {
+        if (AdRules.popupOnBackup(tier)) pendingAdAction = action else action()
+    }
     val scope = rememberCoroutineScope()
     val snackbar = remember { SnackbarHostState() }
     var busy by remember { mutableStateOf(false) }
@@ -120,10 +131,17 @@ fun BackupScreen(onBack: () -> Unit) {
 
             SwitchRow(
                 title = "Automatic backup",
-                subtitle = "Back up to the folder a few seconds after any change",
-                checked = settings.autoBackup,
+                subtitle = "Back up to the folder a few seconds after any change" +
+                    if (tier.canAutoBackup) "" else " (Premium Plus)",
+                checked = settings.autoBackup && tier.canAutoBackup,
                 enabled = settings.folderUri != null,
-                onCheckedChange = manager::setAutoBackup
+                onCheckedChange = { enabled ->
+                    if (tier.canAutoBackup) {
+                        manager.setAutoBackup(enabled)
+                    } else {
+                        Toast.makeText(context, "Upgrade to get automated backups", Toast.LENGTH_SHORT).show()
+                    }
+                }
             )
             SwitchRow(
                 title = "Also save invoice PDFs",
@@ -154,10 +172,12 @@ fun BackupScreen(onBack: () -> Unit) {
 
             Button(
                 onClick = {
-                    if (settings.folderUri != null) {
-                        run({ manager.backupToFolder() }, "Backed up to ${settings.folderName ?: "folder"}")
-                    } else {
-                        createBackupFile.launch("SimpleInvoice-backup-${LocalDate.now()}.db")
+                    afterBackupAd {
+                        if (settings.folderUri != null) {
+                            run({ manager.backupToFolder() }, "Backed up to ${settings.folderName ?: "folder"}")
+                        } else {
+                            createBackupFile.launch("SimpleInvoice-backup-${LocalDate.now()}.db")
+                        }
                     }
                 },
                 enabled = !busy,
@@ -172,11 +192,37 @@ fun BackupScreen(onBack: () -> Unit) {
                 style = MaterialTheme.typography.bodyMedium
             )
             OutlinedButton(
-                onClick = { pickRestoreFile.launch(arrayOf("*/*")) },
+                onClick = { afterBackupAd { pickRestoreFile.launch(arrayOf("*/*")) } },
                 enabled = !busy,
                 modifier = Modifier.fillMaxWidth()
             ) { Text("Restore from backup…") }
         }
+    }
+
+    pendingAdAction?.let { action ->
+        AlertDialog(
+            onDismissRequest = { pendingAdAction = null },
+            title = { Text("Free mode - Ad supported") },
+            text = {
+                Text(
+                    "Backups are free with a short ad.\n\nUpgrade to Premium to back up and restore " +
+                        "without ads, or Premium Plus for automatic backups."
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    pendingAdAction = null
+                    val activity = context.findActivity()
+                    if (activity != null) app.adManager.showInterstitial(activity, action) else action()
+                }) { Text("Watch ad") }
+            },
+            dismissButton = {
+                Row {
+                    TextButton(onClick = { pendingAdAction = null; onOpenPlans() }) { Text("See plans") }
+                    TextButton(onClick = { pendingAdAction = null }) { Text("Cancel") }
+                }
+            }
+        )
     }
 
     restoreUri?.let { uri ->

@@ -7,12 +7,12 @@ Google Play's metadata policy doesn't allow "free" (or "best", "#1", "no ads", "
 
 | Option | Length |
 |---|---|
-| **Unlimited Invoice Maker** (recommended: "invoice maker" is the main search term) | 23 |
+| **Invoice Maker - Professional** (chosen; also the app name on the phone) | 28 |
+| Unlimited Invoice Maker | 23 |
 | Invoice Maker: Unlimited | 24 |
 | Simple Invoices - Unlimited | 27 |
-| Professional Invoice Maker | 26 |
 
-Launcher label (under the icon, about 12 characters show): "Invoice Maker" or "Invoices".
+The home screen shows about 12 characters of the name, so it appears as "Invoice Mak…".
 
 ## Short description (max 80 characters)
 

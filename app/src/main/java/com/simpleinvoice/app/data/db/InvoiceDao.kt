@@ -48,6 +48,9 @@ interface InvoiceDao {
     @Delete
     suspend fun delete(invoice: Invoice)
 
+    @Query("SELECT COUNT(*) FROM invoices WHERE issueDate >= :startEpochDay AND issueDate <= :endEpochDay")
+    suspend fun countInRange(startEpochDay: Long, endEpochDay: Long): Int
+
     @Query("SELECT COUNT(*) FROM invoices")
     suspend fun count(): Int
 

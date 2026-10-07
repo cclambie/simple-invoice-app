@@ -12,6 +12,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AssistChip
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
+import androidx.compose.material.icons.filled.WorkspacePremium
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
@@ -44,6 +46,7 @@ import com.simpleinvoice.app.util.asDecimalInput
 @Composable
 fun BusinessSettingsScreen(
     onOpenBackup: () -> Unit,
+    onOpenPlans: () -> Unit,
     viewModel: BusinessSettingsViewModel = viewModel(factory = BusinessSettingsViewModel.Factory)
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,9 +63,11 @@ fun BusinessSettingsScreen(
             TopAppBar(
                 title = { Text("Business Details") },
                 actions = {
-                    TextButton(onClick = onOpenBackup) {
-                        Icon(Icons.Filled.Backup, contentDescription = null)
-                        Text(" Backup")
+                    IconButton(onClick = onOpenPlans) {
+                        Icon(Icons.Filled.WorkspacePremium, contentDescription = "Plans")
+                    }
+                    IconButton(onClick = onOpenBackup) {
+                        Icon(Icons.Filled.Backup, contentDescription = "Backup & restore")
                     }
                 }
             )

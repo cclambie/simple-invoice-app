@@ -1,7 +1,9 @@
 package com.simpleinvoice.app
 
 import android.app.Application
+import com.simpleinvoice.app.ads.AdManager
 import com.simpleinvoice.app.backup.BackupManager
+import com.simpleinvoice.app.plan.PlanRepository
 import com.simpleinvoice.app.data.db.AppDatabase
 import com.simpleinvoice.app.repository.BusinessProfileRepository
 import com.simpleinvoice.app.repository.ClientRepository
@@ -24,6 +26,10 @@ class SimpleInvoiceApp : Application() {
         private set
     lateinit var backupManager: BackupManager
         private set
+    lateinit var planRepository: PlanRepository
+        private set
+    lateinit var adManager: AdManager
+        private set
 
     /** Lives as long as the process; used for work that must outlive any screen, like backups. */
     val appScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
@@ -35,7 +41,13 @@ class SimpleInvoiceApp : Application() {
         clientRepository = ClientRepository(database.clientDao())
         invoiceRepository = InvoiceRepository(database, database.invoiceDao(), database.invoiceLineItemDao())
         savedItemRepository = SavedItemRepository(database.savedItemDao())
-        backupManager = BackupManager(this, database, invoiceRepository, businessProfileRepository, appScope)
+        planRepository = PlanRepository(this, invoiceRepository)
+        backupManager = BackupManager(
+            this, database, invoiceRepository, businessProfileRepository, appScope,
+            autoBackupAllowed = { planRepository.tier.value.canAutoBackup }
+        )
+        adManager = AdManager(this, appScope)
+        adManager.initialize()
         backupManager.startWatching()
     }
 }
