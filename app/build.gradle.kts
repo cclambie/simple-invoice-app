@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.simpleinvoice.app"
+    namespace = "com.craiglambie.invoicemaker"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.simpleinvoice.app"
+        applicationId = "com.craiglambie.invoicemaker"
         minSdk = 26
         targetSdk = 35
         versionCode = 1

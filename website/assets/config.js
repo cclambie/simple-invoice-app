@@ -1,5 +1,5 @@
 // Site-wide tracking settings. Leave a value empty to switch that tracker off.
-// The privacy policy (/invoice-maker-professional/privacy/) already describes both.
+// The privacy policy (/invoice-maker-small-business/privacy/) already describes both.
 window.SITE_CONFIG = {
   umami: {
     // e.g. "https://cloud.umami.is/script.js" or your self-hosted script URL

@@ -1,8 +1,10 @@
-# Simple Invoice (Android)
+# Invoice Maker Small Business (Android)
 
 A basic, offline-first Android app for creating invoices. Built with Kotlin, Jetpack Compose,
 and Room. Lets a small business create and keep track of invoices and payments due/paid, with
 a simple periodic report for accounting.
+
+Package name (Google Play ID): `com.craiglambie.invoicemaker`. It can't change once published.
 
 ## Features
 
@@ -35,19 +37,19 @@ All data is stored on-device in a Room (SQLite) database. There is no backend or
 ## Backup & restore
 
 The database lives in the app's private storage
-(`/data/data/com.simpleinvoice.app/databases/simple_invoice.db`), which other apps can't read.
+(`/data/data/com.craiglambie.invoicemaker/databases/simple_invoice.db`), which other apps can't read.
 Android's built-in cloud backup (Google One) also includes it, but that copy can't be browsed
 or restored file by file.
 
 The Backup screen lets the user pick any folder through the system folder picker:
 
-- **Back up now**: writes `SimpleInvoice-backup-YYYY-MM-DD.db` (one file per day, overwritten
+- **Back up now**: writes `InvoiceMaker-backup-YYYY-MM-DD.db` (one file per day, overwritten
   through the day). With no folder chosen, it asks for a single file location instead, which
   also works for Google Drive.
 - **Automatic backup**: backs up a few seconds after any change.
 - **Keep N daily backups**: 7 by default; older backup files in the folder are deleted.
 - **Also save invoice PDFs**: keeps a PDF of every invoice in an `Invoices/` subfolder.
-- **Restore from backup…**: checks the file is a Simple Invoice backup that isn't from a newer
+- **Restore from backup…**: checks the file is an Invoice Maker backup that isn't from a newer
   app version, keeps the current data as `files/pre-restore.db`, swaps in the backup and
   restarts the app. Older backups are upgraded by the normal database migrations.
 
@@ -123,7 +125,7 @@ can't be shown, so for free users it should only run as part of a manual backup 
 ## Website
 
 `website/` is the static site at https://apps.craiglambie.com (an apps index plus
-`/invoice-maker-professional/` with the landing page, backup & sync guide and privacy policy).
+`/invoice-maker-small-business/` with the landing page, backup & sync guide and privacy policy).
 It's served by the bunny.net pull zone `appscraiglambie` from the Sydney storage zone of the same
 name. Publish changes with `tools/deploy_website.sh` (reads the bunny.net API key from the
 keyring). Analytics IDs (Umami, Google Ads) go in `website/assets/config.js`; each tracker stays
@@ -153,7 +155,7 @@ connected device with `adb install -r app/build/outputs/apk/debug/app-debug.apk`
 ## Project structure
 
 ```
-app/src/main/java/com/simpleinvoice/app/
+app/src/main/java/com/craiglambie/invoicemaker/
   data/model/     Room entities (BusinessProfile, Client, Invoice, InvoiceLineItem,
                   SavedItem, PaymentAccount)
   data/db/        DAOs, AppDatabase (with migrations), type converters

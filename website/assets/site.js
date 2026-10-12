@@ -66,7 +66,7 @@
     box.setAttribute("aria-label", "Cookie choice");
     box.innerHTML =
       '<p>We use a Google Ads cookie to see which of our ads bring people here. ' +
-      'No cookies are set unless you accept. <a href="/invoice-maker-professional/privacy/#website">Details</a></p>' +
+      'No cookies are set unless you accept. <a href="/invoice-maker-small-business/privacy/#website">Details</a></p>' +
       '<div class="cta-row"><button type="button" class="accept">Accept</button>' +
       '<button type="button" class="decline">Decline</button></div>';
     box.querySelector(".accept").addEventListener("click", function () { saveConsent("granted"); grant(); box.remove(); });

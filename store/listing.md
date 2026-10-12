@@ -7,7 +7,7 @@ Google Play's metadata policy doesn't allow "free" (or "best", "#1", "no ads", "
 
 | Option | Length |
 |---|---|
-| **Invoice Maker - Professional** (chosen; also the app name on the phone) | 28 |
+| **Invoice Maker Small Business** (chosen; also the app name on the phone) | 28 |
 | Unlimited Invoice Maker | 23 |
 | Invoice Maker: Unlimited | 24 |
 | Simple Invoices - Unlimited | 27 |
