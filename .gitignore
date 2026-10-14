@@ -12,5 +12,3 @@ local.properties
 /app/release
 /dist
 
-# CARTO basemap key (public by design, but kept out of the public repo; deploy uploads it)
-/website/work/projects/basemap-key.js
