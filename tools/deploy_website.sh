@@ -7,6 +7,7 @@ STORAGE_ZONE=appscraiglambie
 STORAGE_HOST=syd.storage.bunnycdn.com
 PULL_ZONE_ID=6755349
 
+python3 -I "$(dirname "$0")/build_site.py"   # published articles only; drafts stay local
 cd "$(dirname "$0")/../website"
 KEY=$(secret-tool lookup service bunny.net_api)
 PASSWORD=$(curl -sf -H "AccessKey: $KEY" "https://api.bunny.net/storagezone/$STORAGE_ZONE_ID" |
@@ -17,7 +18,7 @@ while IFS= read -r f; do
   f=${f#./}
   case "$f" in
     *.html) ct="text/html; charset=utf-8" ;; *.css) ct="text/css" ;; *.js) ct="application/javascript" ;;
-    *.png) ct="image/png" ;; *.webp) ct="image/webp" ;; *.xml) ct="application/xml" ;; *.txt) ct="text/plain" ;;
+    *.csv) ct="text/csv; charset=utf-8" ;; *.png) ct="image/png" ;; *.webp) ct="image/webp" ;; *feed.xml) ct="application/atom+xml; charset=utf-8" ;; *.xml) ct="application/xml" ;; *.txt) ct="text/plain" ;;
     *) ct="application/octet-stream" ;;
   esac
   code=$(curl -s -o /dev/null -w "%{http_code}" -X PUT -H "AccessKey: $PASSWORD" -H "Content-Type: $ct" \

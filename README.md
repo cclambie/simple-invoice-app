@@ -124,12 +124,27 @@ can't be shown, so for free users it should only run as part of a manual backup 
 
 ## Website
 
-`website/` is the static site at https://labs.craiglambie.com, the Lambie Labs site (a portfolio home page plus
-`/invoice-maker-small-business/` with the landing page, backup & sync guide and privacy policy).
-It's served by the bunny.net pull zone `appscraiglambie` from the Sydney storage zone of the same
-name. Publish changes with `tools/deploy_website.sh` (reads the bunny.net API key from the
-keyring). Analytics IDs (Umami, Google Ads) go in `website/assets/config.js`; each tracker stays
-off while its value is empty.
+`website/` is the static site at https://labs.craiglambie.com, the Lambie Labs site: a home page,
+Work (`/work/apps/`, `/work/projects/`, `/work/standards/`), Writing (`/writing/`, with tag pages
+and an Atom feed), and `/invoice-maker-small-business/` with the app's landing page, backup & sync
+guide and privacy policy. It's served by the bunny.net pull zone `appscraiglambie` from the Sydney
+storage zone of the same name; apps.craiglambie.com redirects there with an edge rule.
+
+- **Pages and articles** are written in `content/` and built by `tools/build_site.py`: pages are HTML
+  fragments in `content/pages/`, articles are Markdown in `content/writing/` with front matter (title,
+  date, summary, tags, `draft`, `mastodon`, `canonical`, `syndication`). The script's docstring lists
+  the fields. The app pages and the maps in `website/work/projects/*/` are edited by hand.
+- **Drafts** (`draft: true`) are left out of the live site. To preview them, build a copy:
+  `cp -r website /tmp/preview && tools/build_site.py --drafts --out /tmp/preview`, then serve it with
+  `python3 -m http.server -d /tmp/preview`.
+- **Comments** are replies to the article's Mastodon post. Publish the article, post it on Mastodon,
+  put that post's URL in `mastodon:`, and deploy again. `website/assets/article.js` then shows the
+  replies, likes and boosts, read from Mastodon's public API.
+- **Maps** need the CARTO key in `website/work/projects/basemap-key.js`. It's kept out of git, so copy
+  it from the projects server.
+- **Publish** with `tools/deploy_website.sh`, which builds, uploads and purges the CDN (it reads the
+  bunny.net API key from the keyring). Analytics IDs (Umami, Google Ads) go in
+  `website/assets/config.js`; each tracker stays off while its value is empty.
 
 Screenshots use fictional data from `tools/make_demo_db.py`; the launcher and Play Store icons
 come from `tools/make_icon.py`. Play Store assets and listing copy are in `store/`.
