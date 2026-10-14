@@ -1,5 +1,5 @@
 #!/bin/bash
-# Uploads website/ to the bunny.net storage zone behind apps.craiglambie.com and purges the CDN.
+# Uploads website/ to the bunny.net storage zone behind labs.craiglambie.com and purges the CDN.
 # Needs the bunny.net account API key in the keyring: secret-tool store --label=Bunny.net service bunny.net_api
 set -euo pipefail
 STORAGE_ZONE_ID=1973931

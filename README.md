@@ -124,7 +124,7 @@ can't be shown, so for free users it should only run as part of a manual backup 
 
 ## Website
 
-`website/` is the static site at https://apps.craiglambie.com (an apps index plus
+`website/` is the static site at https://labs.craiglambie.com, the Lambie Labs site (a portfolio home page plus
 `/invoice-maker-small-business/` with the landing page, backup & sync guide and privacy policy).
 It's served by the bunny.net pull zone `appscraiglambie` from the Sydney storage zone of the same
 name. Publish changes with `tools/deploy_website.sh` (reads the bunny.net API key from the

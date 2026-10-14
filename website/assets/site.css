@@ -135,7 +135,7 @@ h2 { font-size: clamp(26px, 4vw, 36px); line-height: 1.2; margin: 0 0 12px; lett
 .app-card { display: grid; grid-template-columns: auto 1fr; gap: 20px; align-items: center; background: var(--card); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; text-decoration: none; color: var(--text); }
 .app-card:hover { border-color: var(--brand); }
 .app-card img { width: 72px; height: 72px; border-radius: 16px; }
-.app-card h2 { font-size: 22px; margin: 0 0 4px; }
+.app-card h2, .app-card h3 { font-size: 22px; margin: 0 0 4px; }
 .app-card p { margin: 0; color: var(--muted); }
 
 /* Footer */
