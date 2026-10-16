@@ -8,6 +8,7 @@ import com.craiglambie.invoicemaker.data.db.AppDatabase
 import com.craiglambie.invoicemaker.repository.BusinessProfileRepository
 import com.craiglambie.invoicemaker.repository.ClientRepository
 import com.craiglambie.invoicemaker.repository.InvoiceRepository
+import com.craiglambie.invoicemaker.repository.PaymentLogRepository
 import com.craiglambie.invoicemaker.repository.SavedItemRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +22,8 @@ class SimpleInvoiceApp : Application() {
     lateinit var clientRepository: ClientRepository
         private set
     lateinit var invoiceRepository: InvoiceRepository
+        private set
+    lateinit var paymentLogRepository: PaymentLogRepository
         private set
     lateinit var savedItemRepository: SavedItemRepository
         private set
@@ -40,6 +43,7 @@ class SimpleInvoiceApp : Application() {
         businessProfileRepository = BusinessProfileRepository(database.businessProfileDao(), database.paymentAccountDao())
         clientRepository = ClientRepository(database.clientDao())
         invoiceRepository = InvoiceRepository(database, database.invoiceDao(), database.invoiceLineItemDao())
+        paymentLogRepository = PaymentLogRepository(database, database.paymentLogDao(), database.invoiceDao(), invoiceRepository)
         savedItemRepository = SavedItemRepository(database.savedItemDao())
         planRepository = PlanRepository(this, invoiceRepository)
         backupManager = BackupManager(

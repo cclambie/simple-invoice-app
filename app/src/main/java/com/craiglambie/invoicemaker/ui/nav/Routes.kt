@@ -8,6 +8,7 @@ object Routes {
 
     const val BACKUP = "backup"
     const val PLANS = "plans"
+    const val PAYMENT_LOGS = "payment_logs"
 
     const val INVOICE_EDIT = "invoice_edit/{invoiceId}"
     const val INVOICE_DETAIL = "invoice_detail/{invoiceId}"

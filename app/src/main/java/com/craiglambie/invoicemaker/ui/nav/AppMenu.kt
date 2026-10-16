@@ -3,6 +3,7 @@ package com.craiglambie.invoicemaker.ui.nav
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Backup
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Payment
 import androidx.compose.material.icons.filled.WorkspacePremium
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DropdownMenu
@@ -42,6 +43,7 @@ fun AppMenu() {
         )
         TopLevelDestination.entries.forEach { item(it.label, destinationIcon(it), it.route) }
         Divider()
+        item("Payment log", Icons.Filled.Payment, Routes.PAYMENT_LOGS)
         item("Plans", Icons.Filled.WorkspacePremium, Routes.PLANS)
         item("Backup & restore", Icons.Filled.Backup, Routes.BACKUP)
     }

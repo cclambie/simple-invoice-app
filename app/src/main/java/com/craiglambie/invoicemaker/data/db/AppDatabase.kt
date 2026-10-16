@@ -12,17 +12,18 @@ import com.craiglambie.invoicemaker.data.model.Client
 import com.craiglambie.invoicemaker.data.model.Invoice
 import com.craiglambie.invoicemaker.data.model.InvoiceLineItem
 import com.craiglambie.invoicemaker.data.model.PaymentAccount
+import com.craiglambie.invoicemaker.data.model.PaymentLog
 import com.craiglambie.invoicemaker.data.model.SavedItem
 import com.craiglambie.invoicemaker.util.deviceCurrencyCode
 
 /** Current schema version; also used to reject backups made by a newer app version. */
-const val DATABASE_VERSION = 6
+const val DATABASE_VERSION = 7
 
 /** File name of the database in the app's private databases directory. */
 const val DATABASE_NAME = "simple_invoice.db"
 
 @Database(
-    entities = [BusinessProfile::class, Client::class, Invoice::class, InvoiceLineItem::class, SavedItem::class, PaymentAccount::class],
+    entities = [BusinessProfile::class, Client::class, Invoice::class, InvoiceLineItem::class, SavedItem::class, PaymentAccount::class, PaymentLog::class],
     version = DATABASE_VERSION,
     exportSchema = false
 )
@@ -34,6 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun invoiceLineItemDao(): InvoiceLineItemDao
     abstract fun savedItemDao(): SavedItemDao
     abstract fun paymentAccountDao(): PaymentAccountDao
+    abstract fun paymentLogDao(): PaymentLogDao
 
     companion object {
         private val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -84,6 +86,26 @@ abstract class AppDatabase : RoomDatabase() {
             }
         }
 
+        private val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS payment_logs (" +
+                        "id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, " +
+                        "amount REAL NOT NULL, " +
+                        "amountCurrency TEXT NOT NULL, " +
+                        "reference TEXT NOT NULL, " +
+                        "clientName TEXT NOT NULL, " +
+                        "source TEXT NOT NULL DEFAULT 'tasker', " +
+                        "invoiceId INTEGER, " +
+                        "timestamp INTEGER NOT NULL, " +
+                        "notes TEXT NOT NULL DEFAULT '', " +
+                        "FOREIGN KEY(invoiceId) REFERENCES invoices(id) ON DELETE SET NULL)"
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_logs_invoiceId ON payment_logs(invoiceId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_payment_logs_timestamp ON payment_logs(timestamp)")
+            }
+        }
+
         @Volatile
         private var instance: AppDatabase? = null
 
@@ -93,7 +115,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
-                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6).build().also { instance = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4, MIGRATION_4_5, MIGRATION_5_6, MIGRATION_6_7).build().also { instance = it }
             }
     }
 }

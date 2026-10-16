@@ -29,6 +29,7 @@ import androidx.navigation.NavType
 import com.craiglambie.invoicemaker.SimpleInvoiceApp
 import com.craiglambie.invoicemaker.ads.BannerAd
 import com.craiglambie.invoicemaker.ui.screens.backup.BackupScreen
+import com.craiglambie.invoicemaker.ui.screens.payments.PaymentLogsScreen
 import com.craiglambie.invoicemaker.ui.screens.plans.PlansScreen
 import com.craiglambie.invoicemaker.ui.screens.business.BusinessSettingsScreen
 import com.craiglambie.invoicemaker.ui.screens.clients.ClientEditScreen
@@ -148,6 +149,9 @@ fun SimpleInvoiceNavHost() {
                 }
                 composable(Routes.PLANS) {
                     PlansScreen(onBack = { navController.popBackStack() })
+                }
+                composable(Routes.PAYMENT_LOGS) {
+                    PaymentLogsScreen(onBack = { navController.popBackStack() })
                 }
             }
         }

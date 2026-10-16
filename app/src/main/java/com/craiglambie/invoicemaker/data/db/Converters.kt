@@ -2,6 +2,7 @@ package com.craiglambie.invoicemaker.data.db
 
 import androidx.room.TypeConverter
 import com.craiglambie.invoicemaker.data.model.TaxIdType
+import java.time.Instant
 import java.time.LocalDate
 
 class Converters {
@@ -16,4 +17,10 @@ class Converters {
 
     @TypeConverter
     fun toTaxIdType(type: TaxIdType?): String = (type ?: TaxIdType.GST).name
+
+    @TypeConverter
+    fun fromInstant(millis: Long?): Instant? = millis?.let { Instant.ofEpochMilli(it) }
+
+    @TypeConverter
+    fun toInstant(instant: Instant?): Long? = instant?.toEpochMilli()
 }

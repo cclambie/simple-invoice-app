@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.READ_CONTACTS" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:name=".SimpleInvoiceApp"
@@ -38,6 +39,15 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+
+        <receiver
+            android:name=".tasker.TaskerPaymentReceiver"
+            android:exported="true"
+            android:permission="android.permission.SEND_SMS">
+            <intent-filter>
+                <action android:name="com.craiglambie.invoicemaker.RECORD_PAYMENT" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
