@@ -42,8 +42,7 @@
 
         <receiver
             android:name=".tasker.TaskerPaymentReceiver"
-            android:exported="true"
-            android:permission="android.permission.SEND_SMS">
+            android:exported="true">
             <intent-filter>
                 <action android:name="com.craiglambie.invoicemaker.RECORD_PAYMENT" />
             </intent-filter>

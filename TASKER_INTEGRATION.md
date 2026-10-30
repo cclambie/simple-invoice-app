@@ -24,6 +24,21 @@ Use the **Send Intent** action in Tasker with these details:
 - **Package**: `com.craiglambie.invoicemaker`
 - **Target**: `Broadcast Receiver`
 
+### Easiest: send the notification text
+
+Build a Tasker task for your bank at https://labs.craiglambie.com/invoice-maker-small-business/tasker/
+(paste a notification, mark the client, amount and reference, import the XML). It sends two extras and the app does the rest:
+
+| Extra Name | Description |
+|-----------|-------------|
+| `text` | The notification text, usually `%antext` |
+| `pattern` | Optional regex with the named groups `client`, `amount` and `reference`. Without it the app tries its built-in Up Bank pattern |
+
+Send Intent: Action `com.craiglambie.invoicemaker.RECORD_PAYMENT`, Package `com.craiglambie.invoicemaker`, Target `Broadcast Receiver`.
+Separate `amount`, `reference` and `clientName` extras still work and take priority over `text`.
+
+### Or send the details separately
+
 ### 3. Add Extras (Parameters)
 
 The intent must include the following extras as string or number values:
@@ -77,6 +92,12 @@ All three criteria must match for the invoice to be automatically marked as paid
 - Invoice: INV-001, Client: "John Smith", Total: $330.00
 - Payment: Amount: $330, Client: "John Smith", Reference: "Inv001"
 - ✓ Match! (reference "Inv001" is contained in "INV-001")
+
+## Payments that don't match
+
+If the payer used the wrong reference or amount, the payment shows "No match" in the Payment log. Long-press it
+and choose the invoice. The invoice is marked paid once the payments linked to it add up to its total, so part
+payments leave it unpaid and show "part paid" with the amount received.
 
 ## Viewing Payment Records
 

@@ -64,6 +64,7 @@ fun InvoiceDetailScreen(
 ) {
     val details by viewModel.invoice.collectAsStateWithLifecycle()
     val business by viewModel.business.collectAsStateWithLifecycle()
+    val received by viewModel.received.collectAsStateWithLifecycle()
     val paymentAccounts by viewModel.paymentAccounts.collectAsStateWithLifecycle()
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val context = LocalContext.current
@@ -179,6 +180,13 @@ fun InvoiceDetailScreen(
                     Text("Mark as Unpaid")
                 }
             } else {
+                if (received > 0.0) {
+                    Text(
+                        "Part paid: ${received.asCurrency(item.currencyCode)} received, " +
+                            "${(item.total - received).coerceAtLeast(0.0).asCurrency(item.currencyCode)} due",
+                        color = MaterialTheme.colorScheme.tertiary
+                    )
+                }
                 Button(onClick = viewModel::togglePaid, modifier = Modifier.fillMaxWidth()) {
                     Text("Mark as Paid")
                 }

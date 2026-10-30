@@ -23,6 +23,12 @@ interface PaymentLogDao {
     @Query("SELECT * FROM payment_logs WHERE invoiceId = :invoiceId ORDER BY timestamp DESC")
     suspend fun getForInvoice(invoiceId: Long): List<PaymentLog>
 
+    @Query("SELECT * FROM payment_logs WHERE id = :id")
+    suspend fun getById(id: Long): PaymentLog?
+
+    @Query("UPDATE payment_logs SET invoiceId = :invoiceId WHERE id = :id")
+    suspend fun setInvoice(id: Long, invoiceId: Long?)
+
     @Query("SELECT COUNT(*) FROM payment_logs")
     suspend fun count(): Int
 }

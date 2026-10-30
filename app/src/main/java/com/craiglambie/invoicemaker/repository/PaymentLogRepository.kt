@@ -79,6 +79,28 @@ class PaymentLogRepository(
         }
     }
 
+    /**
+     * Links a logged payment to an invoice, or unlinks it when [invoiceId] is null. The invoice is
+     * marked paid once the payments linked to it add up to its total, so part payments leave it
+     * unpaid. Unlinking never changes an invoice's paid flag.
+     */
+    suspend fun linkToInvoice(logId: Long, invoiceId: Long?) {
+        db.withTransaction {
+            paymentLogDao.setInvoice(logId, invoiceId)
+            if (invoiceId == null) return@withTransaction
+            val details = invoiceRepository.getWithDetails(invoiceId) ?: return@withTransaction
+            val received = paymentLogDao.getForInvoice(invoiceId).sumOf { it.amount }
+            if (!details.invoice.isPaid && received >= details.total - PAID_TOLERANCE) {
+                invoiceRepository.setPaid(details.invoice, paid = true)
+            }
+        }
+    }
+
+    private companion object {
+        /** Half a cent, so rounding in the total doesn't leave an invoice a fraction short. */
+        const val PAID_TOLERANCE = 0.005
+    }
+
     data class PaymentLogResult(
         val success: Boolean,
         val invoiceMatched: Boolean,

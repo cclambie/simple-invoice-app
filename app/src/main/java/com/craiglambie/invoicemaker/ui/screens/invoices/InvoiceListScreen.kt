@@ -47,6 +47,7 @@ fun InvoiceListScreen(
     viewModel: InvoiceListViewModel = viewModel(factory = InvoiceListViewModel.Factory)
 ) {
     val invoices by viewModel.invoices.collectAsStateWithLifecycle()
+    val receivedByInvoice by viewModel.receivedByInvoice.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = { TopAppBar(title = { Text("Invoices") }, actions = { AppMenu() }) },
@@ -61,7 +62,7 @@ fun InvoiceListScreen(
         } else {
             LazyColumn(contentPadding = padding, modifier = Modifier.fillMaxSize()) {
                 items(invoices, key = { it.invoice.id }) { item ->
-                    InvoiceRow(item = item, onClick = { onOpenInvoice(item.invoice.id) })
+                    InvoiceRow(item = item, received = receivedByInvoice[item.invoice.id] ?: 0.0, onClick = { onOpenInvoice(item.invoice.id) })
                 }
             }
         }
@@ -81,7 +82,8 @@ private fun EmptyInvoicesMessage(padding: PaddingValues) {
 }
 
 @Composable
-private fun InvoiceRow(item: InvoiceWithDetails, onClick: () -> Unit) {
+private fun InvoiceRow(item: InvoiceWithDetails, received: Double, onClick: () -> Unit) {
+    val partPaid = !item.invoice.isPaid && received > 0.0
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -95,9 +97,17 @@ private fun InvoiceRow(item: InvoiceWithDetails, onClick: () -> Unit) {
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(item.invoice.invoiceNumber, style = MaterialTheme.typography.titleLarge)
-                PaidStatusChip(isPaid = item.invoice.isPaid)
+                PaidStatusChip(isPaid = item.invoice.isPaid, partPaid = partPaid)
             }
             Text(item.client?.name ?: "No client", style = MaterialTheme.typography.bodyLarge)
+            if (partPaid) {
+                Text(
+                    "${received.asCurrency(item.currencyCode)} received · " +
+                        "${(item.total - received).coerceAtLeast(0.0).asCurrency(item.currencyCode)} due",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.tertiary
+                )
+            }
             Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
                 Text("Due ${item.invoice.dueDate.asDisplayDate()}")
                 Text(item.total.asCurrency(item.currencyCode), style = MaterialTheme.typography.titleLarge)
@@ -107,14 +117,14 @@ private fun InvoiceRow(item: InvoiceWithDetails, onClick: () -> Unit) {
 }
 
 @Composable
-private fun PaidStatusChip(isPaid: Boolean) {
-    val containerColor = if (isPaid) Green90 else Red90
-    val labelColor = if (isPaid) Green40 else Red40
+private fun PaidStatusChip(isPaid: Boolean, partPaid: Boolean) {
+    val containerColor = when { isPaid -> Green90; partPaid -> MaterialTheme.colorScheme.tertiaryContainer; else -> Red90 }
+    val labelColor = when { isPaid -> Green40; partPaid -> MaterialTheme.colorScheme.onTertiaryContainer; else -> Red40 }
     Box(
         modifier = Modifier
             .background(containerColor, RoundedCornerShape(50))
             .padding(horizontal = 12.dp, vertical = 4.dp)
     ) {
-        Text(if (isPaid) "Paid" else "Unpaid", color = labelColor, style = MaterialTheme.typography.labelLarge)
+        Text(if (isPaid) "Paid" else if (partPaid) "Part paid" else "Unpaid", color = labelColor, style = MaterialTheme.typography.labelLarge)
     }
 }

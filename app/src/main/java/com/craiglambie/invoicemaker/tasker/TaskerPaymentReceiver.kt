@@ -15,13 +15,30 @@ import kotlinx.coroutines.runBlocking
 
 class TaskerPaymentReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
+        Log.d(TAG, "Received ${intent.action} extras=${intent.extras?.keySet()?.joinToString { "$it=${intent.extras?.get(it)}" }}")
         if (intent.action != ACTION_RECORD_PAYMENT) return
 
-        val amount = intent.getDoubleExtra(EXTRA_AMOUNT, 0.0)
+        // Tasker sends extras as strings unless typed, so accept either
+        var amount = intent.extras?.get(EXTRA_AMOUNT).let {
+            (it as? Number)?.toDouble() ?: it?.toString()?.trim()?.toDoubleOrNull()
+        } ?: 0.0
         val currency = intent.getStringExtra(EXTRA_CURRENCY) ?: "AUD"
-        val reference = intent.getStringExtra(EXTRA_REFERENCE) ?: ""
-        val clientName = intent.getStringExtra(EXTRA_CLIENT_NAME) ?: ""
-        val notes = intent.getStringExtra(EXTRA_NOTES) ?: ""
+        var reference = intent.getStringExtra(EXTRA_REFERENCE) ?: ""
+        var clientName = intent.getStringExtra(EXTRA_CLIENT_NAME) ?: ""
+        var notes = intent.getStringExtra(EXTRA_NOTES) ?: ""
+
+        // Raw notification text: fill in whatever the separate extras didn't supply
+        intent.getStringExtra(EXTRA_TEXT)?.let { text ->
+            val parsed = PaymentTextParser.parse(text, intent.getStringExtra(EXTRA_PATTERN))
+            if (parsed == null) {
+                Log.w(TAG, "Could not read a payment from text: $text")
+            } else {
+                if (amount <= 0.0) amount = parsed.amount
+                if (reference.isEmpty()) reference = parsed.reference
+                if (clientName.isEmpty()) clientName = parsed.clientName
+                if (notes.isEmpty()) notes = "From notification"
+            }
+        }
 
         if (amount <= 0.0 || reference.isEmpty() || clientName.isEmpty()) {
             Log.w(TAG, "Invalid payment parameters: amount=$amount, reference=$reference, clientName=$clientName")
@@ -52,6 +69,8 @@ class TaskerPaymentReceiver : BroadcastReceiver() {
         const val EXTRA_REFERENCE = "reference"
         const val EXTRA_CLIENT_NAME = "clientName"
         const val EXTRA_NOTES = "notes"
+        const val EXTRA_TEXT = "text"
+        const val EXTRA_PATTERN = "pattern"
     }
 }
 

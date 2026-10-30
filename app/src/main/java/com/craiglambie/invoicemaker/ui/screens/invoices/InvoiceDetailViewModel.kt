@@ -9,6 +9,7 @@ import com.craiglambie.invoicemaker.data.model.InvoiceWithDetails
 import com.craiglambie.invoicemaker.data.model.PaymentAccount
 import com.craiglambie.invoicemaker.repository.BusinessProfileRepository
 import com.craiglambie.invoicemaker.repository.InvoiceRepository
+import com.craiglambie.invoicemaker.repository.PaymentLogRepository
 import com.craiglambie.invoicemaker.util.simpleInvoiceApp
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -19,11 +20,17 @@ import kotlinx.coroutines.launch
 class InvoiceDetailViewModel(
     private val invoiceRepository: InvoiceRepository,
     businessProfileRepository: BusinessProfileRepository,
+    paymentLogRepository: PaymentLogRepository,
     invoiceId: Long
 ) : ViewModel() {
 
     val invoice: StateFlow<InvoiceWithDetails?> = invoiceRepository.observeWithDetails(invoiceId)
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+
+    /** Total of the logged payments linked to this invoice. */
+    val received: StateFlow<Double> = paymentLogRepository.observeForInvoice(invoiceId)
+        .map { logs -> logs.sumOf { it.amount } }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), 0.0)
 
     val business: StateFlow<BusinessProfile> = businessProfileRepository.observe()
         .map { it ?: BusinessProfile() }
@@ -53,7 +60,7 @@ class InvoiceDetailViewModel(
         fun factory(invoiceId: Long) = viewModelFactory {
             initializer {
                 val app = simpleInvoiceApp()
-                InvoiceDetailViewModel(app.invoiceRepository, app.businessProfileRepository, invoiceId)
+                InvoiceDetailViewModel(app.invoiceRepository, app.businessProfileRepository, app.paymentLogRepository, invoiceId)
             }
         }
     }
